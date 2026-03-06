@@ -149,7 +149,7 @@ docker compose -f guac-demo-compose.yaml -p guac ps
 You should see 6 containers, with graphql, collectsub, and guac-rest showing `(healthy)`:
 
 ```
-guac-graphql-1           ... Up (healthy)   0.0.0.0:8080->8080/tcp
+guac-graphql-1           ... Up (healthy)   0.0.0.0:9080->8080/tcp
 guac-collectsub-1        ... Up (healthy)   0.0.0.0:2782->2782/tcp
 guac-guac-rest-1         ... Up (healthy)   0.0.0.0:8081->8081/tcp
 guac-cd-certifier-1      ... Up
@@ -186,7 +186,7 @@ docker run --rm --network guac_default \
 
 ```bash
 # Mutation 1: Gate decision
-curl -s http://localhost:8080/query \
+curl -s http://localhost:9080/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"myrepo\", version: \"1.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:decision\", value: \"FAIL\", justification: \"3 findings — 2 critical (compromised event-stream, AWS key), 1 medium (lodash cooldown)\", timestamp: \"2026-03-03T07:35:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr123\"}) }"
@@ -194,7 +194,7 @@ curl -s http://localhost:8080/query \
 # Expected: {"data":{"ingestHasMetadata":"10"}}
 
 # Mutation 2: PR metadata
-curl -s http://localhost:8080/query \
+curl -s http://localhost:9080/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"myrepo\", version: \"1.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:pr\", value: \"123\", justification: \"Quality gate ran on PR #123\", timestamp: \"2026-03-03T07:35:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr123-meta\"}) }"
@@ -202,7 +202,7 @@ curl -s http://localhost:8080/query \
 # Expected: {"data":{"ingestHasMetadata":"11"}}
 
 # Mutation 3: Critical findings count
-curl -s http://localhost:8080/query \
+curl -s http://localhost:9080/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"myrepo\", version: \"1.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:critical-findings\", value: \"2\", justification: \"compromised-package:event-stream, aws-key:config.ts\", timestamp: \"2026-03-03T07:35:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr123-findings\"}) }"
@@ -215,7 +215,7 @@ curl -s http://localhost:8080/query \
 **Query 1 — "Which repos/packages failed the quality gate?"**
 
 ```bash
-curl -s http://localhost:8080/query \
+curl -s http://localhost:9080/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "{ HasMetadata(hasMetadataSpec: {key: \"nitrogate:decision\", value: \"FAIL\"}) { id key value justification timestamp origin subject { __typename ... on Package { type namespaces { namespace names { name versions { version } } } } } } }"
@@ -227,7 +227,7 @@ Expected: returns `myorg/myrepo` with FAIL, justification showing 3 findings.
 **Query 2 — "Show all NitroGate metadata for a repo"**
 
 ```bash
-curl -s http://localhost:8080/query \
+curl -s http://localhost:9080/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "{ HasMetadata(hasMetadataSpec: {origin: \"nitrogate\"}) { id key value justification timestamp subject { __typename ... on Package { type namespaces { namespace names { name versions { version } } } } } } }"
@@ -239,7 +239,7 @@ Expected: returns all 3 metadata entries (decision, PR number, critical findings
 **Query 3 — "Packages with SBOMs"**
 
 ```bash
-curl -s http://localhost:8080/query \
+curl -s http://localhost:9080/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "{ HasSBOM(hasSBOMSpec: {}) { id uri subject { __typename ... on Package { type namespaces { namespace names { name } } } } } }"
@@ -248,7 +248,7 @@ curl -s http://localhost:8080/query \
 
 Expected: returns `myorg/myrepo` SBOM with SPDX document URI.
 
-**You can also open http://localhost:8080 in a browser** — this is the GUAC GraphQL Playground where you can type queries interactively.
+**You can also open http://localhost:9080 in a browser** — this is the GUAC GraphQL Playground where you can type queries interactively.
 
 ### 3.6 Stop / Restart GUAC
 
@@ -586,12 +586,12 @@ docker run --rm --network guac_default \
   --csub-addr collectsub:2782
 
 # 5. Certify gate results in GUAC
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"myrepo\", version: \"1.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:decision\", value: \"FAIL\", justification: \"3 findings — 2 critical (compromised event-stream, AWS key), 1 medium (lodash cooldown)\", timestamp: \"2026-03-03T07:35:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr123\"}) }"
 }'
 
 # 6. Query GUAC — "Which repos failed?"
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "{ HasMetadata(hasMetadataSpec: {key: \"nitrogate:decision\", value: \"FAIL\"}) { id key value justification origin subject { __typename ... on Package { type namespaces { namespace names { name versions { version } } } } } } }"
 }' | python3 -m json.tool
 
@@ -602,7 +602,7 @@ TARGET_REPO_PATH=workdir/test-repo TEAM_FILES=workdir/test-files-npm.txt \
 cat workdir/results/test-npm_supply_chain_check.json | python3 -m json.tool
 
 # 8. Open GUAC playground in browser
-open http://localhost:8080
+open http://localhost:9080
 ```
 
 ---

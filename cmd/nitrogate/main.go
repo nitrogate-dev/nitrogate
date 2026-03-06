@@ -116,6 +116,11 @@ func main() {
 	comment := output.BuildPRComment(gateResult, attestResult)
 	postPRComment(ctx, client, owner, repo, prNumber, comment)
 
+	inlineComments := output.BuildInlineComments(gateResult)
+	if len(inlineComments) > 0 {
+		postPRReview(ctx, client, owner, repo, prNumber, headSHA, inlineComments)
+	}
+
 	if pol.GUAC.Enabled && signed != nil {
 		guacClient := guac.NewClient(pol.GUAC.Endpoint)
 		if err := guacClient.PushAttestation(signed, outputDir); err != nil {
@@ -263,6 +268,34 @@ func postPRComment(ctx context.Context, client *gh.Client, owner, repo string, p
 		log.Printf("WARNING: Failed to create comment: %v", err)
 	} else {
 		log.Println("PR comment created")
+	}
+}
+
+func postPRReview(ctx context.Context, client *gh.Client, owner, repo string, prNumber int, commitID string, comments []output.InlineComment) {
+	var reviewComments []*gh.DraftReviewComment
+	side := "RIGHT"
+	for _, c := range comments {
+		reviewComments = append(reviewComments, &gh.DraftReviewComment{
+			Path: gh.String(c.Path),
+			Line: gh.Int(c.Line),
+			Side: &side,
+			Body: gh.String(c.Body),
+		})
+	}
+
+	event := "COMMENT"
+	review := &gh.PullRequestReviewRequest{
+		CommitID: gh.String(commitID),
+		Event:    &event,
+		Comments: reviewComments,
+	}
+
+	_, _, err := client.PullRequests.CreateReview(ctx, owner, repo, prNumber, review)
+	if err != nil {
+		log.Printf("WARNING: Failed to create inline review: %v", err)
+		log.Printf("  (Inline comments require the finding line to be within the PR diff)")
+	} else {
+		log.Printf("PR review created with %d inline comments", len(reviewComments))
 	}
 }
 

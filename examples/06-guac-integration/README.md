@@ -18,7 +18,7 @@ curl -sL -o guac-demo-compose.yaml \
 docker compose -f guac-demo-compose.yaml -p guac up -d
 
 # 2. Verify GUAC is running
-curl -s http://localhost:8080/query -H "Content-Type: application/json" \
+curl -s http://localhost:9080/query -H "Content-Type: application/json" \
   -d '{"query": "{ packages(pkgSpec: {}) { type } }"}' | python3 -m json.tool
 ```
 
@@ -50,17 +50,17 @@ docker run --rm --network guac_default \
 
 ```bash
 # Push a FAIL decision for repo "myorg/myrepo"
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"myrepo\", version: \"1.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:decision\", value: \"FAIL\", justification: \"3 findings — 2 critical, 1 medium\", timestamp: \"2026-03-03T07:35:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr123\"}) }"
 }'
 
 # Push PR metadata
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"myrepo\", version: \"1.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:pr\", value: \"123\", justification: \"Quality gate ran on PR #123\", timestamp: \"2026-03-03T07:35:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr123-meta\"}) }"
 }'
 
 # Push a PASS decision for a different repo
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/myorg\", name: \"safe-repo\", version: \"2.0.0\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:decision\", value: \"PASS\", justification: \"0 findings — all scanners passed\", timestamp: \"2026-03-03T08:00:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-pr456\"}) }"
 }'
 ```
@@ -68,7 +68,7 @@ curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
 ### Step 4: Query — "Which repos are failing?"
 
 ```bash
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "{ HasMetadata(hasMetadataSpec: {key: \"nitrogate:decision\", value: \"FAIL\"}) { id key value justification timestamp origin subject { __typename ... on Package { type namespaces { namespace names { name versions { version } } } } } } }"
 }' | python3 -m json.tool
 ```
@@ -110,7 +110,7 @@ curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
 ### Step 5: Query — "Show all NitroGate metadata"
 
 ```bash
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "{ HasMetadata(hasMetadataSpec: {origin: \"nitrogate\"}) { id key value justification timestamp subject { __typename ... on Package { type namespaces { namespace names { name versions { version } } } } } } }"
 }' | python3 -m json.tool
 ```

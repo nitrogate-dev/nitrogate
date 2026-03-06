@@ -85,7 +85,7 @@ PR event
 │  guacone collect files ./attestations/                           │
 │  ├── Ingestor: parses in-toto statement                         │
 │  ├── Assembler: builds graph nodes                              │
-│  └── GraphQL API (port 8080):                                   │
+│  └── GraphQL API (port 9080):                                   │
 │      ├── "Which packages have CVE-X?"                           │
 │      ├── "certifyBad: PRs that failed the gate"                 │
 │      ├── "certifyGood: PRs that passed the gate"                │
@@ -334,7 +334,7 @@ guacone collect files ./nitrogate-attestations/
 guacone certify package --good "nitrogate: passed all checks" "pkg:github/myorg/myrepo@abc123"
 
 # Query
-# Open http://localhost:8080 for GraphQL playground
+# Open http://localhost:9080 for GraphQL playground
 ```
 
 ## Success Metrics

@@ -1,13 +1,13 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
   "creationInfo": {
-    "created": "2026-03-03T11:06:17Z",
+    "created": "2026-03-06T10:24:52Z",
     "creators": [
       "Tool: nitrogate-1.0.0"
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://spdx.org/spdxdocs/myorg-myrepo-20260303",
+  "documentNamespace": "https://spdx.org/spdxdocs/myorg-myrepo-20260306",
   "name": "myorg/myrepo",
   "packages": [
     {

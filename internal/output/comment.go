@@ -112,6 +112,39 @@ func WriteArtifacts(outputDir string, gateResult gate.GateResult, signed *attest
 	return nil
 }
 
+type InlineComment struct {
+	Path string
+	Line int
+	Body string
+}
+
+func BuildInlineComments(gateResult gate.GateResult) []InlineComment {
+	var comments []InlineComment
+	for _, r := range gateResult.ScanResults {
+		for _, f := range r.Findings {
+			if f.File == "" || f.Line <= 0 {
+				continue
+			}
+			if f.Severity < scanner.SeverityMedium {
+				continue
+			}
+			var b strings.Builder
+			b.WriteString(fmt.Sprintf("%s **%s**\n\n", severityIcon(f.Severity), f.Title))
+			b.WriteString(f.Detail + "\n\n")
+			if f.Remediation != "" {
+				b.WriteString(fmt.Sprintf("💡 %s\n\n", f.Remediation))
+			}
+			b.WriteString(fmt.Sprintf("_— NitroGate %s_", formatScannerName(r.Scanner)))
+			comments = append(comments, InlineComment{
+				Path: f.File,
+				Line: f.Line,
+				Body: b.String(),
+			})
+		}
+	}
+	return comments
+}
+
 func collectAllFindings(g gate.GateResult) []scanner.Finding {
 	var all []scanner.Finding
 	for _, r := range g.ScanResults {

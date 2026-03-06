@@ -48,18 +48,18 @@ if command -v docker &> /dev/null && docker ps &> /dev/null; then
         echo ""
 
         # First ingest the package (GUAC requires package to exist before adding metadata)
-        curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+        curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
           "query": "mutation { ingestPackage(pkg: {packageInput: {type: \"guac\", namespace: \"pkg/demo-org\", name: \"test-repo\", version: \"sim-001\"}}) { packageTypeID } }"
         }' > /dev/null
 
         # Now add gate decision metadata
-        curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+        curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
           "query": "mutation { ingestHasMetadata(subject: {package: {packageInput: {type: \"guac\", namespace: \"pkg/demo-org\", name: \"test-repo\", version: \"sim-001\"}}}, pkgMatchType: {pkg: SPECIFIC_VERSION}, hasMetadata: {key: \"nitrogate:decision\", value: \"FAIL\", justification: \"Full simulation: 8 findings — 3 critical, 3 high, 2 medium\", timestamp: \"2026-03-03T12:00:00Z\", origin: \"nitrogate\", collector: \"nitrogate-v1\", documentRef: \"nitrogate-sim-001\"}) }"
         }' | python3 -m json.tool
 
         echo ""
         echo "Querying GUAC for results..."
-        curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+        curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
           "query": "{ HasMetadata(hasMetadataSpec: {origin: \"nitrogate\"}) { key value justification subject { __typename ... on Package { namespaces { namespace names { name } } } } } }"
         }' | python3 -m json.tool
     else

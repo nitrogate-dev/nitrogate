@@ -101,7 +101,7 @@ cat test-guac/attestation.json | python3 -m json.tool
 ./examples/06-guac-integration/demo-queries.sh
 
 # Key query: "Which repos are failing?"
-curl -s http://localhost:8080/query -H "Content-Type: application/json" -d '{
+curl -s http://localhost:9080/query -H "Content-Type: application/json" -d '{
   "query": "{ HasMetadata(hasMetadataSpec: {key: \"nitrogate:decision\", value: \"FAIL\"}) { value justification subject { ... on Package { namespaces { names { name } } } } } }"
 }' | python3 -m json.tool
 ```

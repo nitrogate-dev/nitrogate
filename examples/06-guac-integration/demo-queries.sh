@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-GUAC_ENDPOINT="${GUAC_ENDPOINT:-http://localhost:8080/query}"
+GUAC_ENDPOINT="${GUAC_ENDPOINT:-http://localhost:9080/query}"
 
 echo "=== NitroGate GUAC Demo ==="
 echo "Endpoint: $GUAC_ENDPOINT"

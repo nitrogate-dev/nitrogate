@@ -43,6 +43,6 @@
   },
   "guac": {
     "enabled": true,
-    "endpoint": "http://localhost:8080/query"
+    "endpoint": "http://localhost:9080/query"
   }
 }

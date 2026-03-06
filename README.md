@@ -86,7 +86,7 @@ Add `.nitrogate.json` to your repo root:
   },
   "guac": {
     "enabled": false,
-    "endpoint": "http://localhost:8080/query"
+    "endpoint": "http://localhost:9080/query"
   }
 }
 ```
