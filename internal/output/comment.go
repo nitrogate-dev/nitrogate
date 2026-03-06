@@ -1,6 +1,8 @@
 package output
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,7 +14,7 @@ import (
 	"github.com/nitrogate/nitrogate/internal/scanner"
 )
 
-func BuildPRComment(gateResult gate.GateResult, attestResult string) string {
+func BuildPRComment(gateResult gate.GateResult, attestResult string, signed *attest.SignedAttestation) string {
 	var b strings.Builder
 
 	b.WriteString("## NitroGate Quality Gate\n\n")
@@ -69,7 +71,8 @@ func BuildPRComment(gateResult gate.GateResult, attestResult string) string {
 	}
 
 	b.WriteString("---\n\n")
-	b.WriteString(fmt.Sprintf("**Attestation**: %s | **Mode**: %s\n\n", attestResult, gateResult.Mode))
+	b.WriteString(buildAttestationSection(attestResult, signed))
+	b.WriteString(fmt.Sprintf("**Mode**: %s\n\n", gateResult.Mode))
 
 	b.WriteString("<details>\n<summary>Summary</summary>\n\n")
 	b.WriteString(fmt.Sprintf("| Severity | Count |\n|---|---|\n"))
@@ -110,6 +113,74 @@ func WriteArtifacts(outputDir string, gateResult gate.GateResult, signed *attest
 	}
 
 	return nil
+}
+
+func buildAttestationSection(attestResult string, signed *attest.SignedAttestation) string {
+	var b strings.Builder
+
+	if signed == nil || attestResult != "SIGNED" {
+		b.WriteString(fmt.Sprintf("**Attestation**: ⏭️ %s\n\n", attestResult))
+		if attestResult == "SKIPPED" {
+			b.WriteString("> _No signing key configured. Add `NITRO_SIGNING_KEY_B64` secret to enable tamper-proof attestations._\n\n")
+		}
+		return b.String()
+	}
+
+	stmt, err := attest.ExtractStatement(signed)
+	if err != nil {
+		b.WriteString("**Attestation**: ⚠️ SIGNED (could not extract details)\n\n")
+		return b.String()
+	}
+
+	b.WriteString("### 🔏 Attestation: SIGNED & VERIFIED\n\n")
+	b.WriteString("This scan result is cryptographically signed. The attestation proves these results are authentic and have not been tampered with.\n\n")
+
+	b.WriteString("<details>\n<summary>📜 Attestation Details</summary>\n\n")
+
+	b.WriteString("| Property | Value |\n|---|---|\n")
+	b.WriteString(fmt.Sprintf("| **Format** | [in-toto v1](https://github.com/in-toto/attestation/tree/main/spec/v1) (DSSE envelope) |\n"))
+	b.WriteString(fmt.Sprintf("| **Predicate** | `%s` |\n", stmt.PredicateType))
+	b.WriteString(fmt.Sprintf("| **Algorithm** | Ed25519 |\n"))
+
+	pubKeyShort := signed.PublicKey
+	if len(pubKeyShort) > 16 {
+		pubKeyShort = pubKeyShort[:8] + "..." + pubKeyShort[len(pubKeyShort)-8:]
+	}
+	b.WriteString(fmt.Sprintf("| **Public Key** | `%s` |\n", pubKeyShort))
+	b.WriteString(fmt.Sprintf("| **Signed At** | %s |\n", signed.Timestamp))
+
+	sigShort := signed.Envelope.Signatures[0].Sig
+	if len(sigShort) > 24 {
+		sigShort = sigShort[:12] + "..." + sigShort[len(sigShort)-12:]
+	}
+	b.WriteString(fmt.Sprintf("| **Signature** | `%s` |\n", sigShort))
+
+	if len(stmt.Subject) > 0 {
+		subj := stmt.Subject[0]
+		b.WriteString(fmt.Sprintf("| **Subject** | `%s` |\n", subj.Name))
+		if digest, ok := subj.Digest["sha256"]; ok {
+			short := digest
+			if len(short) > 16 {
+				short = short[:16] + "..."
+			}
+			b.WriteString(fmt.Sprintf("| **Commit Digest** | `sha256:%s` |\n", short))
+		}
+	}
+
+	payloadHash := sha256Hex([]byte(signed.Envelope.Payload))
+	b.WriteString(fmt.Sprintf("| **Payload Hash** | `sha256:%s...` |\n", payloadHash[:16]))
+
+	b.WriteString(fmt.Sprintf("\n**Gate Decision at signing**: %s\n", stmt.Predicate.Gate.Decision))
+	b.WriteString(fmt.Sprintf("**Findings at signing**: %d total\n", stmt.Predicate.Gate.Summary.TotalFindings))
+
+	b.WriteString("\n</details>\n\n")
+
+	return b.String()
+}
+
+func sha256Hex(data []byte) string {
+	h := sha256.Sum256(data)
+	return hex.EncodeToString(h[:])
 }
 
 type InlineComment struct {

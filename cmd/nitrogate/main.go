@@ -113,7 +113,7 @@ func main() {
 	stmtJSON, _ := stmt.ToJSON()
 	os.WriteFile(filepath.Join(outputDir, "statement.json"), stmtJSON, 0644)
 
-	comment := output.BuildPRComment(gateResult, attestResult)
+	comment := output.BuildPRComment(gateResult, attestResult, signed)
 	postPRComment(ctx, client, owner, repo, prNumber, comment)
 
 	inlineComments := output.BuildInlineComments(gateResult)
