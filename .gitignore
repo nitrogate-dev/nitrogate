@@ -1,0 +1,6 @@
+node_modules/
+dist/
+nitrogate-artifacts/
+*.js.map
+*.d.ts
+!jest.config.js

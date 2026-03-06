@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  guac:
+    image: ghcr.io/guacsec/guac:latest
+    command: ["guacrest", "--gql-debug"]
+    ports:
+      - "8080:8080"
+    environment:
+      - GUAC_GQL_ADDR=0.0.0.0:8080
+    volumes:
+      - guac-data:/data
+    restart: unless-stopped
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+    restart: unless-stopped
+
+  collector-subscriber:
+    image: ghcr.io/guacsec/guac:latest
+    command: ["guacone", "csub"]
+    depends_on:
+      - nats
+    environment:
+      - GUAC_NATS_ADDR=nats://nats:4222
+    restart: unless-stopped
+
+volumes:
+  guac-data:

@@ -1,0 +1,30 @@
+name: Insecure CI (Example - DO NOT USE)
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      # Script injection: attacker-controlled input in run block
+      - name: Log PR info
+        run: |
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Body: ${{ github.event.pull_request.body }}"
+
+      # Unpinned action (should use SHA)
+      - uses: some-org/deploy-action@main
+        with:
+          token: ${{ secrets.DEPLOY_TOKEN }}
+
+      # Secret logged to stdout
+      - name: Debug
+        run: echo "Token is ${{ secrets.GITHUB_TOKEN }}"

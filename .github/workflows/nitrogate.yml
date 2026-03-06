@@ -1,0 +1,31 @@
+name: NitroGate Quality Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  gate:
+    name: NitroGate Scan & Attest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run NitroGate
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NITRO_SIGNING_KEY_B64: ${{ secrets.NITRO_SIGNING_KEY_B64 }}
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nitrogate-artifacts
+          path: nitrogate-artifacts/
+          retention-days: 30

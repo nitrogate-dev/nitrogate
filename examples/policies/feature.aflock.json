@@ -1,0 +1,11 @@
+{
+  "allowedFileGlobs": ["src/**", "tests/**", "docs/**", "*.md", "*.json"],
+  "deniedFileGlobs": ["**/.env", "**/.env.*", "**/*.pem", "**/*.key", "**/credentials.json", "**/*.secret"],
+  "maxChangedFiles": 50,
+  "maxDiffBytes": 250000,
+  "llm": {
+    "provider": "mock",
+    "model": "gpt-4o"
+  },
+  "mode": "advisory"
+}

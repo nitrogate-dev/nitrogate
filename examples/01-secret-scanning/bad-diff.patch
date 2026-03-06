@@ -1,0 +1,20 @@
+diff --git a/config.ts b/config.ts
+index 1234567..abcdef0 100644
+--- a/config.ts
++++ b/config.ts
+@@ -10,6 +10,9 @@ export const config = {
+   apiUrl: process.env.API_URL,
+   debug: false,
++  awsAccessKey: "AKIAIOSFODNN7EXAMPLE",
++  awsSecretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
++  githubToken: "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij",
+ };
+diff --git a/deploy.sh b/deploy.sh
+index 2345678..bcdef01 100644
+--- a/deploy.sh
++++ b/deploy.sh
+@@ -5,3 +5,5 @@
+ echo "Deploying..."
++export SLACK_WEBHOOK="https://hooks.example.com/services/TXXXXXXXXX/BXXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
++API_KEY="sk-proj-Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9Jj0Kk1Ll2Mm3Nn4Oo5Pp6Qq"
+ docker push myapp:latest

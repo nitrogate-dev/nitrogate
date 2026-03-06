@@ -1,0 +1,38 @@
+[
+  {
+    "scanner": "workflows",
+    "ruleId": "script-injection",
+    "title": "Script Injection via github.event context",
+    "severity": "CRITICAL",
+    "file": ".github/workflows/ci.yml",
+    "detail": "Attacker-controlled input 'github.event.pull_request.title' used in 'run:' step — enables arbitrary command execution",
+    "remediation": "Set the value as an environment variable instead: env: PR_TITLE: ${{ github.event.pull_request.title }}"
+  },
+  {
+    "scanner": "workflows",
+    "ruleId": "pwn-request",
+    "title": "Pwn Request: pull_request_target + checkout of PR head",
+    "severity": "CRITICAL",
+    "file": ".github/workflows/ci.yml",
+    "detail": "Workflow uses 'pull_request_target' trigger and checks out the PR head SHA — attacker's fork code runs with write access",
+    "remediation": "Use 'pull_request' trigger instead, or avoid checking out the PR head code"
+  },
+  {
+    "scanner": "workflows",
+    "ruleId": "unpinned-action",
+    "title": "Unpinned Action: some-org/deploy-action@main",
+    "severity": "MEDIUM",
+    "file": ".github/workflows/ci.yml",
+    "detail": "Action not pinned to a SHA — a compromised action repo could inject malicious code",
+    "remediation": "Pin to a specific commit SHA: some-org/deploy-action@<full-sha>"
+  },
+  {
+    "scanner": "workflows",
+    "ruleId": "excessive-permissions",
+    "title": "Excessive Workflow Permissions",
+    "severity": "MEDIUM",
+    "file": ".github/workflows/ci.yml",
+    "detail": "Workflow uses 'permissions: write-all' — grants unnecessary access",
+    "remediation": "Use least-privilege permissions: only grant 'contents: read' and 'pull-requests: write' if needed"
+  }
+]

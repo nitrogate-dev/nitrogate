@@ -1,0 +1,96 @@
+{
+  "payload": {
+    "_type": "https://in-toto.io/Statement/v1",
+    "subject": [
+      {
+        "name": "myorg/myrepo",
+        "digest": {
+          "sha256": "8f61ad5cfa0c471c8cbf810ea285cb1e5f9c2c5e5e5e4f58a3229667703e1587"
+        }
+      }
+    ],
+    "predicateType": "https://aflockgate.dev/attestation/review/v1",
+    "predicate": {
+      "gate": {
+        "decision": "FAIL",
+        "mode": "gate",
+        "reasons": [
+          "[critical] secrets: AWS Access Key Detected",
+          "[critical] npm-supply-chain: Compromised Package: event-stream"
+        ],
+        "summary": {
+          "totalFindings": 3,
+          "criticalCount": 2,
+          "highCount": 0,
+          "mediumCount": 1,
+          "lowCount": 0,
+          "infoCount": 0,
+          "scannersRun": 3,
+          "scannersWithError": 0
+        }
+      },
+      "scanners": [
+        {
+          "name": "secrets",
+          "duration": "120ms",
+          "findings": 1
+        },
+        {
+          "name": "npm-supply-chain",
+          "duration": "340ms",
+          "findings": 2
+        },
+        {
+          "name": "dependencies",
+          "duration": "200ms",
+          "findings": 0
+        }
+      ],
+      "evidence": {
+        "repo": "myorg/myrepo",
+        "pr": 123,
+        "baseSha": "abc123",
+        "headSha": "def456",
+        "changedFiles": [
+          "package.json",
+          "config.ts"
+        ],
+        "diffSha256": "9245c9ffbfbe7d1d0edfe0a42e7d8eeafb1f1d8f8684caf062cd48cbb44eac21"
+      },
+      "findings": [
+        {
+          "scanner": "secrets",
+          "ruleId": "aws-key",
+          "title": "AWS Access Key Detected",
+          "detail": "",
+          "severity": 4,
+          "file": "config.ts",
+          "line": 42
+        },
+        {
+          "scanner": "npm-supply-chain",
+          "ruleId": "compromised-package",
+          "title": "Compromised Package: event-stream",
+          "detail": "",
+          "severity": 4
+        },
+        {
+          "scanner": "npm-supply-chain",
+          "ruleId": "npm-cooldown",
+          "title": "New Version: lodash@4.99.0 (2d old)",
+          "detail": "",
+          "severity": 2
+        }
+      ],
+      "timestamp": "2026-03-03T07:35:10Z",
+      "version": "2.0.0"
+    }
+  },
+  "payloadType": "application/vnd.in-toto+json",
+  "signatures": [
+    {
+      "keyid": "test-key",
+      "sig": "test"
+    }
+  ]
+}

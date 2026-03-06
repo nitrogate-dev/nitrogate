@@ -1,0 +1,42 @@
+[
+  {
+    "scanner": "secrets",
+    "ruleId": "aws-access-key",
+    "title": "AWS Access Key Detected",
+    "severity": "CRITICAL",
+    "file": "config.ts",
+    "line": 13,
+    "detail": "AKIA***REDACTED*** — Rotate this key immediately",
+    "remediation": "Remove the hardcoded key and use environment variables or AWS IAM roles"
+  },
+  {
+    "scanner": "secrets",
+    "ruleId": "github-token",
+    "title": "GitHub Personal Access Token",
+    "severity": "CRITICAL",
+    "file": "config.ts",
+    "line": 15,
+    "detail": "ghp_***REDACTED*** — Revoke this token",
+    "remediation": "Revoke at GitHub → Settings → Developer settings → Personal access tokens"
+  },
+  {
+    "scanner": "secrets",
+    "ruleId": "slack-webhook",
+    "title": "Slack Webhook URL",
+    "severity": "HIGH",
+    "file": "deploy.sh",
+    "line": 8,
+    "detail": "Slack incoming webhook URL detected",
+    "remediation": "Store webhook URLs in repository secrets, not in code"
+  },
+  {
+    "scanner": "secrets",
+    "ruleId": "high-entropy",
+    "title": "High Entropy String",
+    "severity": "HIGH",
+    "file": "deploy.sh",
+    "line": 9,
+    "detail": "Possible API key or token (Shannon entropy: 4.8)",
+    "remediation": "If this is a secret, move it to environment variables"
+  }
+]

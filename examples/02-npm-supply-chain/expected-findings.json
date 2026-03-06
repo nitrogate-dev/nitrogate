@@ -1,0 +1,26 @@
+[
+  {
+    "scanner": "npm-supply-chain",
+    "ruleId": "compromised-package",
+    "title": "Compromised Package: event-stream",
+    "severity": "CRITICAL",
+    "detail": "event-stream@3.3.6 is a known compromised package. In 2018, a malicious dependency (flatmap-stream) was added that stole cryptocurrency wallet keys.",
+    "remediation": "Remove event-stream immediately and audit your codebase for any impact"
+  },
+  {
+    "scanner": "npm-supply-chain",
+    "ruleId": "typosquatting",
+    "title": "Possible Typosquatting: lodsah",
+    "severity": "HIGH",
+    "detail": "lodsah is suspiciously similar to popular package 'lodash' (Levenshtein distance: 2). This could be a typosquatting attack.",
+    "remediation": "Verify the package name. Did you mean 'lodash'?"
+  },
+  {
+    "scanner": "npm-supply-chain",
+    "ruleId": "suspicious-install-script",
+    "title": "Suspicious Install Script",
+    "severity": "HIGH",
+    "detail": "postinstall script contains 'curl' command — possible data exfiltration or malware download",
+    "remediation": "Review the postinstall script contents and remove if not needed"
+  }
+]

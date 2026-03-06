@@ -1,0 +1,43 @@
+name: 'NitroGate'
+description: 'Supply Chain Quality Gate — Secrets, Vulnerabilities, Workflow Security, Licenses + Signed Attestations'
+author: 'nitrogate'
+
+inputs:
+  policy-path:
+    description: 'Path to .nitrogate.json policy file'
+    required: false
+    default: '.nitrogate.json'
+  signing-key:
+    description: 'Base64-encoded Ed25519 32-byte seed for signing attestations'
+    required: false
+  openai-api-key:
+    description: 'OpenAI API key for LLM review'
+    required: false
+  anthropic-api-key:
+    description: 'Anthropic API key for LLM review'
+    required: false
+  guac-endpoint:
+    description: 'GUAC GraphQL endpoint for organizational intelligence'
+    required: false
+    default: ''
+
+outputs:
+  gate-decision:
+    description: 'PASS, FAIL, or ADVISORY'
+  attestation-result:
+    description: 'SIGNED, FAIL, or SKIPPED'
+  total-findings:
+    description: 'Total number of findings across all scanners'
+  critical-count:
+    description: 'Number of critical-severity findings'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    GITHUB_TOKEN: ${{ github.token }}
+    NITRO_SIGNING_KEY_B64: ${{ inputs.signing-key }}
+    OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+    ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+    NITROGATE_POLICY_PATH: ${{ inputs.policy-path }}
+    NITROGATE_GUAC_ENDPOINT: ${{ inputs.guac-endpoint }}

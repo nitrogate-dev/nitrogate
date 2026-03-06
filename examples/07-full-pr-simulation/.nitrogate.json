@@ -1,0 +1,48 @@
+{
+  "mode": "gate",
+  "filePolicy": {
+    "allowedFileGlobs": ["**/*"],
+    "deniedFileGlobs": ["**/.env", "**/*.pem", "**/*.key"],
+    "maxChangedFiles": 50,
+    "maxDiffBytes": 250000
+  },
+  "secrets": {
+    "enabled": true,
+    "severityThreshold": "high",
+    "allowFiles": ["**/*.test.*", "**/*.spec.*"]
+  },
+  "dependencies": {
+    "enabled": true,
+    "severityThreshold": "high",
+    "ecosystems": ["npm", "go", "pypi"],
+    "npmSupplyChain": {
+      "cooldownDays": 7,
+      "checkCompromised": true,
+      "checkTyposquatting": true,
+      "checkInstallScripts": true
+    }
+  },
+  "workflows": {
+    "enabled": true,
+    "requirePinnedActions": true,
+    "trustedOrgs": ["actions", "github"],
+    "checkScriptInjection": true,
+    "checkPwnRequest": true,
+    "checkExcessivePermissions": true
+  },
+  "licenses": {
+    "enabled": true,
+    "denied": ["AGPL-3.0", "GPL-3.0", "GPL-2.0"],
+    "warnOn": ["LGPL-2.1", "MPL-2.0"],
+    "allowUnknown": false
+  },
+  "attestation": {
+    "format": "intoto-v1",
+    "signing": "ed25519",
+    "storage": "artifact"
+  },
+  "guac": {
+    "enabled": true,
+    "endpoint": "http://localhost:8080/query"
+  }
+}

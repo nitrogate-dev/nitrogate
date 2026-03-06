@@ -1,0 +1,32 @@
+name: 'AflockGate'
+description: 'Policy-Locked AI PR Reviewer with Signed Attestations'
+author: 'aflockgate'
+
+inputs:
+  policy-path:
+    description: 'Path to .aflock.json policy file (relative to repo root)'
+    required: false
+    default: '.aflock.json'
+  signing-key:
+    description: 'Base64-encoded Ed25519 32-byte seed for signing attestations'
+    required: false
+  openai-api-key:
+    description: 'OpenAI API key (required when llm.provider is "openai")'
+    required: false
+  anthropic-api-key:
+    description: 'Anthropic API key (required when llm.provider is "anthropic")'
+    required: false
+
+outputs:
+  attestation-result:
+    description: 'PASS or FAIL — whether attestation signature verified'
+  review-summary:
+    description: 'One-line summary from the LLM review'
+  blocking-count:
+    description: 'Number of blocking issues found'
+  policy-violations:
+    description: 'Number of policy violations detected'
+
+runs:
+  using: 'node20'
+  main: 'dist/main.js'
